@@ -20,6 +20,12 @@ class Oeuvre
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTime $date_sortie = null;
 
+    #[ORM\ManyToOne(inversedBy: 'oeuvres')]
+    private ?TypeOeuvre $typeOeuvre = null;
+
+    #[ORM\ManyToOne(inversedBy: 'oeuvres')]
+    private ?TypeOeuvre $TypeOeuvre = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -45,6 +51,18 @@ class Oeuvre
     public function setDateSortie(\DateTime $date_sortie): static
     {
         $this->date_sortie = $date_sortie;
+
+        return $this;
+    }
+
+    public function getTypeOeuvre(): ?TypeOeuvre
+    {
+        return $this->typeOeuvre;
+    }
+
+    public function setTypeOeuvre(?TypeOeuvre $typeOeuvre): static
+    {
+        $this->typeOeuvre = $typeOeuvre;
 
         return $this;
     }

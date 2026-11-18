@@ -27,9 +27,16 @@ class Exemplaire
     #[ORM\ManyToMany(targetEntity: Oeuvre::class)]
     private Collection $Oeuvre;
 
+    /**
+     * @var Collection<int, Emprunt>
+     */
+    #[ORM\OneToMany(targetEntity: Emprunt::class, mappedBy: 'exemplaire')]
+    private Collection $emprunts;
+
     public function __construct()
     {
         $this->Oeuvre = new ArrayCollection();
+        $this->emprunts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -81,6 +88,36 @@ class Exemplaire
     public function removeOeuvre(Oeuvre $oeuvre): static
     {
         $this->Oeuvre->removeElement($oeuvre);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Emprunt>
+     */
+    public function getEmprunts(): Collection
+    {
+        return $this->emprunts;
+    }
+
+    public function addEmprunt(Emprunt $emprunt): static
+    {
+        if (!$this->emprunts->contains($emprunt)) {
+            $this->emprunts->add($emprunt);
+            $emprunt->setExemplaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmprunt(Emprunt $emprunt): static
+    {
+        if ($this->emprunts->removeElement($emprunt)) {
+            // set the owning side to null (unless already changed)
+            if ($emprunt->getExemplaire() === $this) {
+                $emprunt->setExemplaire(null);
+            }
+        }
 
         return $this;
     }

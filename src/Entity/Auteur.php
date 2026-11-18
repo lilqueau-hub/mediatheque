@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AuteurRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AuteurRepository::class)]
@@ -18,6 +20,17 @@ class Auteur
 
     #[ORM\Column(length: 50)]
     private ?string $prenom = null;
+
+    /**
+     * @var Collection<int, Oeuvre>
+     */
+    #[ORM\ManyToMany(targetEntity: Oeuvre::class, inversedBy: 'auteurs')]
+    private Collection $oeuvre;
+
+    public function __construct()
+    {
+        $this->oeuvre = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -44,6 +57,30 @@ class Auteur
     public function setPrenom(string $prenom): static
     {
         $this->prenom = $prenom;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Oeuvre>
+     */
+    public function getOeuvre(): Collection
+    {
+        return $this->oeuvre;
+    }
+
+    public function addOeuvre(Oeuvre $oeuvre): static
+    {
+        if (!$this->oeuvre->contains($oeuvre)) {
+            $this->oeuvre->add($oeuvre);
+        }
+
+        return $this;
+    }
+
+    public function removeOeuvre(Oeuvre $oeuvre): static
+    {
+        $this->oeuvre->removeElement($oeuvre);
 
         return $this;
     }

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\OeuvreRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -25,6 +27,24 @@ class Oeuvre
 
     #[ORM\ManyToOne(inversedBy: 'oeuvres')]
     private ?TypeOeuvre $TypeOeuvre = null;
+
+    /**
+     * @var Collection<int, Categorie>
+     */
+    #[ORM\ManyToMany(targetEntity: Categorie::class, mappedBy: 'oeuvre')]
+    private Collection $categories;
+
+    /**
+     * @var Collection<int, Auteur>
+     */
+    #[ORM\ManyToMany(targetEntity: Auteur::class, mappedBy: 'oeuvre')]
+    private Collection $auteurs;
+
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+        $this->auteurs = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -63,6 +83,60 @@ class Oeuvre
     public function setTypeOeuvre(?TypeOeuvre $typeOeuvre): static
     {
         $this->typeOeuvre = $typeOeuvre;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Categorie>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Categorie $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->addOeuvre($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Categorie $category): static
+    {
+        if ($this->categories->removeElement($category)) {
+            $category->removeOeuvre($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Auteur>
+     */
+    public function getAuteurs(): Collection
+    {
+        return $this->auteurs;
+    }
+
+    public function addAuteur(Auteur $auteur): static
+    {
+        if (!$this->auteurs->contains($auteur)) {
+            $this->auteurs->add($auteur);
+            $auteur->addOeuvre($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAuteur(Auteur $auteur): static
+    {
+        if ($this->auteurs->removeElement($auteur)) {
+            $auteur->removeOeuvre($this);
+        }
 
         return $this;
     }

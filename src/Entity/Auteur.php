@@ -27,9 +27,16 @@ class Auteur
     #[ORM\ManyToMany(targetEntity: Oeuvre::class, inversedBy: 'auteurs')]
     private Collection $oeuvre;
 
+    /**
+     * @var Collection<int, Oeuvre>
+     */
+    #[ORM\ManyToMany(targetEntity: Oeuvre::class, mappedBy: 'auteur')]
+    private Collection $oeuvres;
+
     public function __construct()
     {
         $this->oeuvre = new ArrayCollection();
+        $this->oeuvres = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -83,5 +90,13 @@ class Auteur
         $this->oeuvre->removeElement($oeuvre);
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Oeuvre>
+     */
+    public function getOeuvres(): Collection
+    {
+        return $this->oeuvres;
     }
 }

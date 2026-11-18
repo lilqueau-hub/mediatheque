@@ -5,8 +5,8 @@ namespace App\Entity;
 use App\Repository\OeuvreRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity(repositoryClass: OeuvreRepository::class)]
 class Oeuvre
@@ -16,34 +16,41 @@ class Oeuvre
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, nullable: false)]
     private ?string $titre = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $date_sortie = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
+    private ?\DateTimeImmutable $dateSortie = null;
 
     #[ORM\ManyToOne(inversedBy: 'oeuvres')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?TypeOeuvre $typeOeuvre = null;
-
-    #[ORM\ManyToOne(inversedBy: 'oeuvres')]
-    private ?TypeOeuvre $TypeOeuvre = null;
 
     /**
      * @var Collection<int, Categorie>
      */
-    #[ORM\ManyToMany(targetEntity: Categorie::class, mappedBy: 'oeuvre')]
+    #[ORM\ManyToMany(targetEntity: Categorie::class, inversedBy: 'oeuvres')]
+    #[ORM\JoinTable(name: 'oeuvre_categorie')]
     private Collection $categories;
 
     /**
      * @var Collection<int, Auteur>
      */
-    #[ORM\ManyToMany(targetEntity: Auteur::class, mappedBy: 'oeuvre')]
+    #[ORM\ManyToMany(targetEntity: Auteur::class, inversedBy: 'oeuvres')]
+    #[ORM\JoinTable(name: 'oeuvre_auteur')]
     private Collection $auteurs;
+
+    /**
+     * @var Collection<int, Exemplaire>
+     */
+    #[ORM\OneToMany(targetEntity: Exemplaire::class, mappedBy: 'oeuvre')]
+    private Collection $exemplaire;
 
     public function __construct()
     {
         $this->categories = new ArrayCollection();
         $this->auteurs = new ArrayCollection();
+        $this->exemplaire = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -63,14 +70,14 @@ class Oeuvre
         return $this;
     }
 
-    public function getDateSortie(): ?\DateTime
+    public function getDateSortie(): ?\DateTimeImmutable
     {
-        return $this->date_sortie;
+        return $this->dateSortie;
     }
 
-    public function setDateSortie(\DateTime $date_sortie): static
+    public function setDateSortie(\DateTimeImmutable $dateSortie): static
     {
-        $this->date_sortie = $date_sortie;
+        $this->dateSortie = $dateSortie;
 
         return $this;
     }
@@ -95,21 +102,18 @@ class Oeuvre
         return $this->categories;
     }
 
-    public function addCategory(Categorie $category): static
+    public function addCategorie(Categorie $categorie): static
     {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
-            $category->addOeuvre($this);
+        if (!$this->categories->contains($categorie)) {
+            $this->categories->add($categorie);
         }
 
         return $this;
     }
 
-    public function removeCategory(Categorie $category): static
+    public function removeCategorie(Categorie $categorie): static
     {
-        if ($this->categories->removeElement($category)) {
-            $category->removeOeuvre($this);
-        }
+        $this->categories->removeElement($categorie);
 
         return $this;
     }
@@ -126,7 +130,6 @@ class Oeuvre
     {
         if (!$this->auteurs->contains($auteur)) {
             $this->auteurs->add($auteur);
-            $auteur->addOeuvre($this);
         }
 
         return $this;
@@ -134,8 +137,36 @@ class Oeuvre
 
     public function removeAuteur(Auteur $auteur): static
     {
-        if ($this->auteurs->removeElement($auteur)) {
-            $auteur->removeOeuvre($this);
+        $this->auteurs->removeElement($auteur);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Exemplaire>
+     */
+    public function getExemplaire(): Collection
+    {
+        return $this->exemplaire;
+    }
+
+    public function addExemplaire(Exemplaire $exemplaire): static
+    {
+        if (!$this->exemplaire->contains($exemplaire)) {
+            $this->exemplaire->add($exemplaire);
+            $exemplaire->setOeuvre($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExemplaire(Exemplaire $exemplaire): static
+    {
+        if ($this->exemplaire->removeElement($exemplaire)) {
+            // set the owning side to null (unless already changed)
+            if ($exemplaire->getOeuvre() === $this) {
+                $exemplaire->setOeuvre(null);
+            }
         }
 
         return $this;

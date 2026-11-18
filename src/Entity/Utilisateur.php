@@ -6,6 +6,7 @@ use App\Repository\UtilisateurRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 class Utilisateur
@@ -15,23 +16,29 @@ class Utilisateur
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 100, nullable: false)]
     private ?string $nom = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 100, nullable: false)]
     private ?string $prenom = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, unique: true, nullable: false)]
+    #[Assert\Email(message: "Adresse email invalide.")]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: false)]
+    #[Assert\Length(min:10)]
+    #[Assert\Regex(
+        pattern: '/^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/',
+        message: "Le mot de passe invalide"
+    )]
     private ?string $mdp = null;
 
     #[ORM\Column]
-    private ?\DateTime $date_creation = null;
+    private ?\DateTimeImmutable $dateCreation = null;
 
     #[ORM\Column]
-    private ?\DateTime $date_modification = null;
+    private ?\DateTimeImmutable $dateModification = null;
 
     /**
      * @var Collection<int, Emprunt>
@@ -97,26 +104,26 @@ class Utilisateur
         return $this;
     }
 
-    public function getDateCreation(): ?\DateTime
+    public function getDateCreation(): ?\DateTimeImmutable
     {
-        return $this->date_creation;
+        return $this->dateCreation;
     }
 
-    public function setDateCreation(\DateTime $date_creation): static
+    public function setDateCreation(\DateTimeImmutable $dateCreation): static
     {
-        $this->date_creation = $date_creation;
+        $this->dateCreation = $dateCreation;
 
         return $this;
     }
 
-    public function getDateModification(): ?\DateTime
+    public function getDateModification(): ?\DateTimeImmutable
     {
-        return $this->date_modification;
+        return $this->dateModification;
     }
 
-    public function setDateModification(\DateTime $date_modification): static
+    public function setDateModification(\DateTimeImmutable $dateModification): static
     {
-        $this->date_modification = $date_modification;
+        $this->dateModification = $dateModification;
 
         return $this;
     }

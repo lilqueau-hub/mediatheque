@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\EmpruntRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity(repositoryClass: EmpruntRepository::class)]
 class Emprunt
@@ -13,14 +14,14 @@ class Emprunt
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?\DateTime $date_emprunt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
+    private ?\DateTimeImmutable $dateEmprunt = null;
 
-    #[ORM\Column]
-    private ?\DateTime $date_retour_prevu = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
+    private ?\DateTimeImmutable $dateRetourPrevu = null;
 
-    #[ORM\Column]
-    private ?\DateTime $date_retour_reel = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $dateRetourReelle = null;
 
     #[ORM\ManyToOne(inversedBy: 'emprunts')]
     private ?Utilisateur $utilisateur = null;
@@ -33,38 +34,38 @@ class Emprunt
         return $this->id;
     }
 
-    public function getDateEmprunt(): ?\DateTime
+    public function getDateEmprunt(): ?\DateTimeImmutable
     {
-        return $this->date_emprunt;
+        return $this->dateEmprunt;
     }
 
-    public function setDateEmprunt(\DateTime $date_emprunt): static
+    public function setDateEmprunt(\DateTimeImmutable $dateEmprunt): static
     {
-        $this->date_emprunt = $date_emprunt;
+        $this->dateEmprunt = $dateEmprunt;
 
         return $this;
     }
 
-    public function getDateRetourPrevu(): ?\DateTime
+    public function getDateRetourPrevu(): ?\DateTimeImmutable
     {
-        return $this->date_retour_prevu;
+        return $this->dateRetourPrevu;
     }
 
-    public function setDateRetourPrevu(\DateTime $date_retour_prevu): static
+    public function setDateRetourPrevu(\DateTimeImmutable $dateRetourPrevu): static
     {
-        $this->date_retour_prevu = $date_retour_prevu;
+        $this->dateRetourPrevu = $dateRetourPrevu;
 
         return $this;
     }
 
-    public function getDateRetourReel(): ?\DateTime
+    public function getDateRetourReelle(): ?\DateTimeImmutable
     {
-        return $this->date_retour_reel;
+        return $this->dateRetourReelle;
     }
 
-    public function setDateRetourReel(\DateTime $date_retour_reel): static
+    public function setDateRetourReelle(?\DateTimeImmutable $dateRetourReelle): static
     {
-        $this->date_retour_reel = $date_retour_reel;
+        $this->dateRetourReelle = $dateRetourReelle;
 
         return $this;
     }

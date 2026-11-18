@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recherche{% endblock %}
+
+{% block body %}
+    <a href="{{ path('app_oeuvre') }}">Consulter le catalogue</a>
+
+    <form action="{{ path('oeuvre_recherche') }}" method="GET">
+        <input type="text" name="titre" placeholder="Saisir un titre" value="{{ titre }}">
+        <button type="submit">Rechercher</button>
+    </form>
+
+    // afficher les résultats
+    {% if oeuvres is empty %}
+        <p>Aucune oeuvre trouvée</p>
+    {% else %}
+        {% for oeuvre in oeuvres %}
+            <h3>Titre : {{ oeuvre.titre }} </h3>
+            <p>Date de sortie : {{ oeuvre.dateSortie }} </p>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

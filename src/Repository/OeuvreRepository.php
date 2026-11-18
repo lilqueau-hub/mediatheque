@@ -16,6 +16,14 @@ class OeuvreRepository extends ServiceEntityRepository
         parent::__construct($registry, Oeuvre::class);
     }
 
+    public function rechercheParTitre(string $titre): array
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.titre LIKE :titre')
+            ->setParameter('titre', '%' . $titre . '%')
+            ->getQuery()
+            ->getResult();
+    }
 //    /**
 //     * @return Oeuvre[] Returns an array of Oeuvre objects
 //     */

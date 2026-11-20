@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h1>Modifier une oeuvre</h1>
+
+{{ form_start(form) }}
+    {{ form_row(form.titre) }}
+    {{ form_row(form.dateSortie) }}
+    {{ form_row(form.typeOeuvre) }}
+    {{ form_row(form.categories) }}
+    {{ form_row(form.auteurs) }}
+    <button type="submit">Enregistrer les modifications</button>
+{{ form_end(form) }}
+
+{% endblock %}

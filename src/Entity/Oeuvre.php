@@ -34,7 +34,7 @@ class Oeuvre
     private Collection $categories;
 
     /**
-     * @var Collection<int, Auteur>
+     * @var Collection<int, Auteur>     
      */
     #[ORM\ManyToMany(targetEntity: Auteur::class, inversedBy: 'oeuvres')]
     #[ORM\JoinTable(name: 'oeuvre_auteur')]

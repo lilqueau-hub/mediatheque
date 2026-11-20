@@ -75,9 +75,42 @@ final class OeuvreController extends AbstractController
         ]);
     }
 
-    #[Route('/oeuvre/{id}/modifier', name: 'oeuvre_modification', requirements: ['id' => '\d+'])]
+    #[Route('/oeuvre/{id}/modifier', name: 'oeuvre_modification', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function modifierOeuvre(int $id, Request $request, EntityManagerInterface $em, OeuvreRepository $oeuvreRepository): Response
     {
-        
+        $oeuvre = $oeuvreRepository->find($id);
+         if (!$oeuvre) {
+            throw $this->createNotFoundException('Oeuvre introuvable');
+        }
+
+        $form = $this->createForm(OeuvreType::class, $oeuvre);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            return $this->redirectToRoute('app_oeuvre');
+        }
+        return $this->render('oeuvre/modifierOeuvre.html.twig', [
+            'form' => $form->createView(),
+            'oeuvre' => $oeuvre
+        ]);
+    }
+    
+    #[Route('oeuvre/{id}/supprimer', name: 'oeuvre_suppression', requirements: ['id' => '\d+'])]
+    public function supprimerOeuvre(int $id, Request $request, EntityManagerInterface $em, OeuvreRepository $oeuvreRepository): Response
+    {
+        $oeuvre = $oeuvreRepository->find($id);
+        if (!$oeuvre) {
+            throw $this->createNotFoundException('Oeuvre introuvable');
+        }
+        if ($this->isCsrfTokenValid(
+            'delete' . $oeuvre->getId(),
+            $request->request->get('_token')
+        )) {
+            $em->remove($oeuvre);
+            $em->flush();
+        }
+        return $this->redirectToRoute('app_oeuvre');
+
     }
 }

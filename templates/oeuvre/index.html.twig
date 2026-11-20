@@ -13,13 +13,22 @@
             <tr>
                 <th>Titre</th>
                 <th>Date de sortie</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             {% for oeuvre in oeuvres %}
                 <tr>
                     <td>{{ oeuvre.titre }}</td>
-                    <td>{{ oeuvre.dateSortie }}</td>
+                    <td>{{ oeuvre.dateSortie | date('d/m/Y H:i:s') }}</td>
+                    <td>
+                        <form action="{{ path('oeuvre_modification', {'id': oeuvre.id}) }}">
+                            <button type="submit">Modifier</button>
+                        </form>
+                         <form action="{{ path('oeuvre_suppression', {'id': oeuvre.id}) }}">
+                            <button type="submit">Supprimer</button>
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

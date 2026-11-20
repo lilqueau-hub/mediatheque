@@ -77,7 +77,15 @@ class Emprunt
 
     public function setUtilisateur(?Utilisateur $utilisateur): static
     {
+        if ($this->utilisateur === $utilisateur) {
+            return $this;
+        }
+
+        $previous = $this->utilisateur;
         $this->utilisateur = $utilisateur;
+
+        $previous?->removeEmprunt($this);
+        $utilisateur?->addEmprunt($this);
 
         return $this;
     }
@@ -89,7 +97,15 @@ class Emprunt
 
     public function setExemplaire(?Exemplaire $exemplaire): static
     {
+        if ($this->exemplaire === $exemplaire) {
+            return $this;
+        }
+
+        $previous = $this->exemplaire;
         $this->exemplaire = $exemplaire;
+
+        $previous?->removeEmprunt($this);
+        $exemplaire?->addEmprunt($this);
 
         return $this;
     }

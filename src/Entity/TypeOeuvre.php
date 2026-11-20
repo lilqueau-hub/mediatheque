@@ -21,7 +21,7 @@ class TypeOeuvre
     /**
      * @var Collection<int, Oeuvre>
      */
-    #[ORM\OneToMany(targetEntity: Oeuvre::class, mappedBy: 'TypeOeuvre')]
+    #[ORM\OneToMany(targetEntity: Oeuvre::class, mappedBy: 'typeOeuvre')]
     private Collection $oeuvres;
 
     public function __construct()
@@ -66,13 +66,11 @@ class TypeOeuvre
 
     public function removeOeuvre(Oeuvre $oeuvre): static
     {
-        if ($this->oeuvres->removeElement($oeuvre)) {
-            // set the owning side to null (unless already changed)
-            if ($oeuvre->getTypeOeuvre() === $this) {
-                $oeuvre->setTypeOeuvre(null);
-            }
+        if ($oeuvre->getTypeOeuvre() === $this) {
+            throw new \LogicException('Assign another type before removing this oeuvre.');
         }
 
+        $this->oeuvres->removeElement($oeuvre);
         return $this;
     }
 }

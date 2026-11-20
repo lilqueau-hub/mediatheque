@@ -22,23 +22,16 @@ class Exemplaire
     private ?string $code_inventaire = null;
 
     /**
-     * @var Collection<int, Oeuvre>
-     */
-    #[ORM\ManyToMany(targetEntity: Oeuvre::class)]
-    private Collection $Oeuvre;
-
-    /**
      * @var Collection<int, Emprunt>
      */
     #[ORM\OneToMany(targetEntity: Emprunt::class, mappedBy: 'exemplaire')]
     private Collection $emprunts;
 
-    #[ORM\ManyToOne(inversedBy: 'exemplaire')]
+    #[ORM\ManyToOne(inversedBy: 'exemplaires')]
     private ?Oeuvre $oeuvre = null;
 
     public function __construct()
     {
-        $this->Oeuvre = new ArrayCollection();
         $this->emprunts = new ArrayCollection();
     }
 
@@ -67,30 +60,6 @@ class Exemplaire
     public function setCodeInventaire(?string $code_inventaire): static
     {
         $this->code_inventaire = $code_inventaire;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Oeuvre>
-     */
-    public function getOeuvre(): Collection
-    {
-        return $this->Oeuvre;
-    }
-
-    public function addOeuvre(Oeuvre $oeuvre): static
-    {
-        if (!$this->Oeuvre->contains($oeuvre)) {
-            $this->Oeuvre->add($oeuvre);
-        }
-
-        return $this;
-    }
-
-    public function removeOeuvre(Oeuvre $oeuvre): static
-    {
-        $this->Oeuvre->removeElement($oeuvre);
 
         return $this;
     }
@@ -125,9 +94,22 @@ class Exemplaire
         return $this;
     }
 
+    public function getOeuvre(): ?Oeuvre
+    {
+        return $this->oeuvre;
+    }
+
     public function setOeuvre(?Oeuvre $oeuvre): static
     {
+        if ($this->oeuvre === $oeuvre) {
+            return $this;
+        }
+
+        $previous = $this->oeuvre;
         $this->oeuvre = $oeuvre;
+
+        $previous?->removeExemplaire($this);
+        $oeuvre?->addExemplaire($this);
 
         return $this;
     }

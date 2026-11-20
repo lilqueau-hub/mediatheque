@@ -24,18 +24,11 @@ class Auteur
     /**
      * @var Collection<int, Oeuvre>
      */
-    #[ORM\ManyToMany(targetEntity: Oeuvre::class, inversedBy: 'auteurs')]
-    private Collection $oeuvre;
-
-    /**
-     * @var Collection<int, Oeuvre>
-     */
-    #[ORM\ManyToMany(targetEntity: Oeuvre::class, mappedBy: 'auteur')]
+    #[ORM\ManyToMany(targetEntity: Oeuvre::class, mappedBy: 'auteurs')]
     private Collection $oeuvres;
 
     public function __construct()
     {
-        $this->oeuvre = new ArrayCollection();
         $this->oeuvres = new ArrayCollection();
     }
 
@@ -71,15 +64,11 @@ class Auteur
     /**
      * @return Collection<int, Oeuvre>
      */
-    public function getOeuvre(): Collection
-    {
-        return $this->oeuvre;
-    }
-
     public function addOeuvre(Oeuvre $oeuvre): static
     {
-        if (!$this->oeuvre->contains($oeuvre)) {
-            $this->oeuvre->add($oeuvre);
+        if (!$this->oeuvres->contains($oeuvre)) {
+            $this->oeuvres->add($oeuvre);
+            $oeuvre->addAuteur($this);
         }
 
         return $this;
@@ -87,7 +76,9 @@ class Auteur
 
     public function removeOeuvre(Oeuvre $oeuvre): static
     {
-        $this->oeuvre->removeElement($oeuvre);
+        if ($this->oeuvres->removeElement($oeuvre)) {
+            $oeuvre->removeAuteur($this);
+        }
 
         return $this;
     }

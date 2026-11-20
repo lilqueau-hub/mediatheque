@@ -27,9 +27,9 @@ class Utilisateur
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: false)]
-    #[Assert\Length(min:10)]
+    #[Assert\Length(min: 10)]
     #[Assert\Regex(
-        pattern: '/^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/',
+        pattern: '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{10,}$/',
         message: "Le mot de passe invalide"
     )]
     private ?string $mdp = null;
@@ -49,6 +49,8 @@ class Utilisateur
     public function __construct()
     {
         $this->emprunts = new ArrayCollection();
+        $this->dateCreation = new \DateTimeImmutable();
+        $this->dateModification = new \DateTimeImmutable();
     }
 
     public function getId(): ?int

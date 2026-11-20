@@ -19,7 +19,7 @@ class Oeuvre
     #[ORM\Column(length: 100, nullable: false)]
     private ?string $titre = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: false)]
     private ?\DateTimeImmutable $dateSortie = null;
 
     #[ORM\ManyToOne(inversedBy: 'oeuvres')]
@@ -34,7 +34,7 @@ class Oeuvre
     private Collection $categories;
 
     /**
-     * @var Collection<int, Auteur>     
+     * @var Collection<int, Auteur>
      */
     #[ORM\ManyToMany(targetEntity: Auteur::class, inversedBy: 'oeuvres')]
     #[ORM\JoinTable(name: 'oeuvre_auteur')]
@@ -44,13 +44,13 @@ class Oeuvre
      * @var Collection<int, Exemplaire>
      */
     #[ORM\OneToMany(targetEntity: Exemplaire::class, mappedBy: 'oeuvre')]
-    private Collection $exemplaire;
+    private Collection $exemplaires;
 
     public function __construct()
     {
         $this->categories = new ArrayCollection();
         $this->auteurs = new ArrayCollection();
-        $this->exemplaire = new ArrayCollection();
+        $this->exemplaires = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -87,9 +87,17 @@ class Oeuvre
         return $this->typeOeuvre;
     }
 
-    public function setTypeOeuvre(?TypeOeuvre $typeOeuvre): static
+    public function setTypeOeuvre(TypeOeuvre $typeOeuvre): static
     {
+        if ($this->typeOeuvre === $typeOeuvre) {
+            return $this;
+        }
+
+        $previous = $this->typeOeuvre;
         $this->typeOeuvre = $typeOeuvre;
+
+        $previous?->removeOeuvre($this);
+        $typeOeuvre->addOeuvre($this);
 
         return $this;
     }
@@ -106,6 +114,7 @@ class Oeuvre
     {
         if (!$this->categories->contains($categorie)) {
             $this->categories->add($categorie);
+            $categorie->addOeuvre($this);
         }
 
         return $this;
@@ -113,7 +122,9 @@ class Oeuvre
 
     public function removeCategorie(Categorie $categorie): static
     {
-        $this->categories->removeElement($categorie);
+        if ($this->categories->removeElement($categorie)) {
+            $categorie->removeOeuvre($this);
+        }
 
         return $this;
     }
@@ -130,6 +141,7 @@ class Oeuvre
     {
         if (!$this->auteurs->contains($auteur)) {
             $this->auteurs->add($auteur);
+            $auteur->addOeuvre($this);
         }
 
         return $this;
@@ -137,7 +149,9 @@ class Oeuvre
 
     public function removeAuteur(Auteur $auteur): static
     {
-        $this->auteurs->removeElement($auteur);
+        if ($this->auteurs->removeElement($auteur)) {
+            $auteur->removeOeuvre($this);
+        }
 
         return $this;
     }
@@ -145,15 +159,15 @@ class Oeuvre
     /**
      * @return Collection<int, Exemplaire>
      */
-    public function getExemplaire(): Collection
+    public function getExemplaires(): Collection
     {
-        return $this->exemplaire;
+        return $this->exemplaires;
     }
 
     public function addExemplaire(Exemplaire $exemplaire): static
     {
-        if (!$this->exemplaire->contains($exemplaire)) {
-            $this->exemplaire->add($exemplaire);
+        if (!$this->exemplaires->contains($exemplaire)) {
+            $this->exemplaires->add($exemplaire);
             $exemplaire->setOeuvre($this);
         }
 
@@ -162,7 +176,7 @@ class Oeuvre
 
     public function removeExemplaire(Exemplaire $exemplaire): static
     {
-        if ($this->exemplaire->removeElement($exemplaire)) {
+        if ($this->exemplaires->removeElement($exemplaire)) {
             // set the owning side to null (unless already changed)
             if ($exemplaire->getOeuvre() === $this) {
                 $exemplaire->setOeuvre(null);

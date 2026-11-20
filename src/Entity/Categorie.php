@@ -21,12 +21,12 @@ class Categorie
     /**
      * @var Collection<int, Oeuvre>
      */
-    #[ORM\ManyToMany(targetEntity: Oeuvre::class, inversedBy: 'categories')]
-    private Collection $oeuvre;
+    #[ORM\ManyToMany(targetEntity: Oeuvre::class, mappedBy: 'categories')]
+    private Collection $oeuvres;
 
     public function __construct()
     {
-        $this->oeuvre = new ArrayCollection();
+        $this->oeuvres = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -49,15 +49,16 @@ class Categorie
     /**
      * @return Collection<int, Oeuvre>
      */
-    public function getOeuvre(): Collection
+    public function getOeuvres(): Collection
     {
-        return $this->oeuvre;
+        return $this->oeuvres;
     }
 
     public function addOeuvre(Oeuvre $oeuvre): static
     {
-        if (!$this->oeuvre->contains($oeuvre)) {
-            $this->oeuvre->add($oeuvre);
+        if (!$this->oeuvres->contains($oeuvre)) {
+            $this->oeuvres->add($oeuvre);
+            $oeuvre->addCategorie($this);
         }
 
         return $this;
@@ -65,7 +66,9 @@ class Categorie
 
     public function removeOeuvre(Oeuvre $oeuvre): static
     {
-        $this->oeuvre->removeElement($oeuvre);
+        if ($this->oeuvres->removeElement($oeuvre)) {
+            $oeuvre->removeCategorie($this);
+        }
 
         return $this;
     }
